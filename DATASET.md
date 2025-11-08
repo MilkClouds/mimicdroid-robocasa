@@ -20,7 +20,7 @@ Use the Hugging Face CLI to download the datasets:
 pip install huggingface_hub
 
 # Download the complete dataset
-huggingface-cli download Rutav/MimicDroidDataset --repo-type dataset --local-dir /home/rutavms/research/gaze/MimicDroidDataset
+huggingface-cli download Rutav/MimicDroidDataset --repo-type dataset --local-dir ./MimicDroidDataset
 ```
 
 This will:
