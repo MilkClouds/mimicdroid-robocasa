@@ -30,10 +30,10 @@ def get_default_hdf5_paths() -> List[str]:
         f"{base_dir}/PlayEnvFinal/final_prompts/TurnOnFaucet/003",
         f"{base_dir}/PlayEnvFinal/final_prompts/CloseLeftCabinetDoor/003",
         # L2 tasks
-        f"${base_dir}/home/rutavms/datasets/robocasa/datasets/PlayEnvFinal/final_prompts/PnPSinkToRightCounterPlateL2/003",
-        f"${base_dir}/home/rutavms/datasets/robocasa/datasets/PlayEnvFinal/final_prompts/PnPSinkToCabinetL2/003",
-        f"${base_dir}/home/rutavms/datasets/robocasa/datasets/PlayEnvFinal/final_prompts/CloseRightCabinetDoorL2/003",
-        f"${base_dir}/home/rutavms/datasets/robocasa/datasets/PlayEnvFinal/final_prompts/CloseLeftCabinetDoorL2/003",
+        f"${base_dir}/PlayEnvFinal/final_prompts/PnPSinkToRightCounterPlateL2/003",
+        f"${base_dir}/PlayEnvFinal/final_prompts/PnPSinkToCabinetL2/003",
+        f"${base_dir}/PlayEnvFinal/final_prompts/CloseRightCabinetDoorL2/003",
+        f"${base_dir}/PlayEnvFinal/final_prompts/CloseLeftCabinetDoorL2/003",
         # L3 tasks
         f"{base_dir}/PlayEnvFinal/final_prompts/CloseLeftCabinetDoorL3/003",
         f"{base_dir}/PlayEnvFinal/final_prompts/PnPSinkToRightCounterPlateL3/003",

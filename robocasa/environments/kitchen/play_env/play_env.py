@@ -2,6 +2,7 @@ import os
 import numpy as np
 from typing import List, Dict, Any
 
+import robocasa
 from robocasa.environments.kitchen.kitchen import *
 import robocasa.utils.object_utils as OU
 import robocasa.macros as macros
@@ -488,12 +489,13 @@ class PnPSinkToRightCounterPlateL3(StyleMixin, LayoutMixin, PnPSinkToRightCounte
                     obj_cfg["placement"]["offset"] = (0.05, 0.0)
                     obj_cfg["info"]["groups_containing_sampled_obj"] = ["plate"]
                     obj_cfg["info"]["cat"] = ["plate"]
+                    # use the robocasa base path to get the path to the plate model
                     obj_cfg["info"][
                         "groups"
-                    ] = "/home/rutavms/research/gaze/robocasa/robocasa/models/assets/objects/objaverse/plate/plate_1/model.xml"
+                    ] = f"{robocasa.models.assets_root}/objects/objaverse/plate/plate_1/model.xml"
                     obj_cfg["info"][
                         "mjcf_path"
-                    ] = "/home/rutavms/research/gaze/robocasa/robocasa/models/assets/objects/objaverse/plate/plate_1/model.xml"
+                    ] = f"{robocasa.models.assets_root}/objects/objaverse/plate/plate_1/model.xml"
         return super().set_ep_meta(ep_meta)
 
 

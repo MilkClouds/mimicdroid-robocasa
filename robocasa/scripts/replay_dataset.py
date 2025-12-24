@@ -9,6 +9,7 @@ import sys
 import argparse
 import json
 import h5py
+import cv2
 import numpy as np
 import time
 from pathlib import Path
@@ -76,7 +77,7 @@ def create_keys_info():
     }
 
 
-def replay_episode(env, hdf5_path, ep_name, env_args: EnvArgs):
+def replay_episode(env, hdf5_path, ep_name, env_args: EnvArgs, args: argparse.Namespace):
     """Replay a single episode from the dataset."""
     print(colored(f"Replaying episode: {ep_name}", "blue"))
 
@@ -124,6 +125,7 @@ def replay_episode(env, hdf5_path, ep_name, env_args: EnvArgs):
 
     # Replay actions
     print(colored(f"Replaying {len(actions)} actions...", "yellow"))
+    video_frames = []
 
     for i, action in enumerate(actions):
         if env_args.render:
@@ -133,6 +135,10 @@ def replay_episode(env, hdf5_path, ep_name, env_args: EnvArgs):
 
         # Step the environment
         obs, reward, done, info = env.step(action)
+        if args.save_videos:
+            keys = [key for key in obs.keys() if '_image' in key]
+            image = np.concatenate([obs[key][::-1][..., ::-1] for key in keys], axis=1)
+            video_frames.append(image)
 
         if hasattr(env_args, "verbose") and env_args.verbose:
             print(f"Step {i+1}/{len(actions)}: Action={action[:3]}... (first 3 dims)")
@@ -147,7 +153,14 @@ def replay_episode(env, hdf5_path, ep_name, env_args: EnvArgs):
     print(
         colored(f"Episode completed. Success: {success}", "green" if success else "red")
     )
-
+    if args.save_videos:
+        # create a tmp file in /tmp/ep_name_time.mp4
+        tmp_file = f"/tmp/{ep_name}_{time.time()}.mp4"
+        video_writer = cv2.VideoWriter(tmp_file, cv2.VideoWriter_fourcc(*'mp4v'), 30, (video_frames[0].shape[1], video_frames[0].shape[0]))
+        for frame in video_frames:
+            video_writer.write(frame)
+        video_writer.release()
+        print(colored(f"Video saved to {tmp_file}", "green"))
     return success
 
 
@@ -187,8 +200,20 @@ def main():
         default=False,
         help="Whether to return camera observations",
     )
-    parser.add_argument("--reset_mode", type=str, default=None, help="Reset mode")
+    parser.add_argument(
+        "--save_videos",
+        action="store_true",
+        help="Whether to save a video of the episode",
+    )
+    parser.add_argument(
+        "--reset_mode", 
+        type=str,
+        default=None,
+        help="Reset mode"
+    )
     args = parser.parse_args()
+    if args.save_videos:
+        assert args.use_camera_obs, "Camera observations are required to save a video"
 
     # Validate inputs
     if not os.path.exists(args.hdf5_path):
@@ -245,7 +270,7 @@ def main():
         print(colored(f"Episode {i+1}/{total_episodes}: {ep_name}", "cyan"))
         print(colored(f"{'='*50}", "cyan"))
 
-        replay_episode(env, hdf5_path, ep_name, env_args_obj)
+        replay_episode(env, hdf5_path, ep_name, env_args_obj, args)
 
     # Print summary
     print(colored(f"\n{'='*50}", "cyan"))

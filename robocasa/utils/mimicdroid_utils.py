@@ -6,6 +6,8 @@ import json
 import h5py
 import numpy as np
 import xml.etree.ElementTree as ET
+from pathlib import Path
+from lxml import etree
 from dataclasses import dataclass
 from typing import Optional, Union, List
 
@@ -15,6 +17,39 @@ from robosuite.controllers import load_composite_controller_config
 
 import robocasa
 from robocasa import PLAY_TASK_NAME_TO_CLASS
+import robocasa.macros as macros
+
+def fix_asset_paths_relative_to_robocasa(
+    xml_string, robocasa_module, robocasa_marker="robocasa/models/assets"
+):
+    """
+    Replace all asset file paths in the xml string so that the prefix up to 'robocasa'
+    is replaced with the robocasa installation path.
+
+    Args:
+        xml_string (str): Original MJCF XML as string
+        robocasa_module: The imported `robocasa` module (or any module within it)
+        robocasa_marker (str): Folder name to identify the point in path replacement
+    """
+    # Parse and fix XML
+    root = etree.fromstring(xml_string)
+    for tag in ["mesh", "texture", "heightfield"]:
+        for elem in root.findall(f".//{tag}"):
+            file_attr = elem.get("file")
+            if file_attr:
+                # Replace only if absolute and contains old robocasa path
+                if file_attr.startswith("/"):
+                    # parts = Path(file_attr).parts
+                    # find out what is the index of the robocasa marker
+                    idx = file_attr.find(robocasa_marker)
+                    if idx != -1:
+                        curr_home_path = "/".join(robocasa.__file__.split("/")[:-2])
+                        rel_path = file_attr[idx:]
+                        new_path = os.path.join(curr_home_path, rel_path)
+                        new_path = Path(new_path).resolve()
+                        elem.set("file", str(new_path))
+
+    return etree.tostring(root, pretty_print=True).decode("utf-8")
 
 
 @dataclass
@@ -210,17 +245,18 @@ def make_env(file_name, env_args: EnvArgs):
             ],
         )
     else:
-        print("No controller specified. Using default controller from the dataset")
+        if macros.VERBOSE:
+            print("No controller specified. Using default controller from the dataset")
         controller_config = dataset_controller_config
 
     env_name = dataset_env_args["env_name"]
-    print("Env name: ", env_name)
+    if macros.VERBOSE:
+        print(f"{env_name=}")
     if env_args.task_name is not None:
         env_name = PLAY_TASK_NAME_TO_CLASS[env_args.task_name]
     env_kwargs = dataset_env_args["env_kwargs"]
 
     env_kwargs["eval_mode"] = env_args.reset_mode
-    print(f"Reset mode: {env_kwargs['eval_mode']}")
     env_kwargs["env_name"] = env_name
     env_kwargs[
         "ep_meta"
@@ -233,10 +269,6 @@ def make_env(file_name, env_args: EnvArgs):
     env_kwargs.pop("use_camera_obs", None)
     env_kwargs.pop("renderer", None)
     env_kwargs.pop("camera_segmentations", None)
-    print(f"Env args: {dataset_env_args}")
-
-    print("Rendering the environment: ", env_args.render)
-    print(f"Control frequency: {env_args.control_freq}")
 
     env = robosuite.make(
         has_renderer=env_args.render,
@@ -300,6 +332,7 @@ def reset_to(env, state, replace_robot_joints=True, change_to_gr1=False):
         if change_to_gr1:
             xml = replace_robot_tag(new_model_xml=xml, old_model_xml=curr_xml)
 
+        xml = fix_asset_paths_relative_to_robocasa(xml_string=xml, robocasa_module=robocasa)
         env.reset_from_xml_string(xml)
         # env.sim.reset(): resets the robot back to some position which has collision with the table. Change the xml?
         env.sim.reset()
@@ -308,7 +341,8 @@ def reset_to(env, state, replace_robot_joints=True, change_to_gr1=False):
 
     if "states" in state:
         if replace_robot_joints:
-            print("Replacing robot joints")
+            if macros.VERBOSE:
+                print(f"Replacing robot joints")
             robot_indices = env.robots[0]._ref_joint_pos_indexes
             other_indices = set(
                 range(env.sim.get_state().qpos.flatten().shape[0])
