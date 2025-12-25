@@ -1049,7 +1049,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 if (action_dim == 7) or (action_dim == 14):
                     action = np.zeros(self.action_spec[0].shape[0] // len(robot.arms))
                     base_action_dim = 0
-                elif action_dim == 12:
+                elif (action_dim == 11) and robot.name=="PandaOmron":
+                    assert hasattr(robot, "composite_controller"), "PandaOmron with a composite controller will have the following split index: OrderedDict([('right', (0, 6)), ('right_gripper', (6, 7)), ('base', (7, 10)), ('torso', (10, 11))])"
+                    action = np.zeros(7)
+                    base_action_dim = 4
+                elif action_dim == 12 and robot.name=="PandaOmron":
                     action = np.zeros(7)
                     base_action_dim = (
                         5  # Omron has 6 arm + 1 gripper + 4 base + 1 switch

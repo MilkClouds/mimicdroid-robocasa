@@ -274,7 +274,7 @@ def make_env(file_name, env_args: EnvArgs):
         has_renderer=env_args.render,
         use_camera_obs=env_args.use_camera_obs,
         renderer="mjviewer",
-        camera_segmentations="segmentation_level",
+        camera_segmentations="instance",
         control_freq=env_args.control_freq,
         **env_kwargs,
     )
