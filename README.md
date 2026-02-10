@@ -80,8 +80,9 @@ Please see [GETTING_STARTED.md](GETTING_STARTED.md) for instructions.
 @article{shah2025mimicdroid,
   title={MimicDroid: In-Context Learning for Humanoid Manipulation from Human Play Videos},
   author={Shah, Rutav and Liu, Shuijing and Wang, Qi and Jiang, Zhenyu and Kumar, Sateesh and Seo, Mingyo and Mart{\'\i}n-Mart{\'\i}n, Roberto and Zhu, Yuke},
-  journal={2026 IEEE International Conference on Robotics and Automation (ICRA)},
-  year={2026}
+  booktitle={2026 IEEE International Conference on Robotics and Automation (ICRA)},
+  year={2026},
+  organization={IEEE}
 }
 
 @inproceedings{robocasa2024,
