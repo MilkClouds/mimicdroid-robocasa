@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robocasa"
+version = "0.2.0"
+description = "RoboCasa simulation for MimicDroid (in-context learning from human play videos)"
+readme = "README.md"
+# numba 0.56.4 / numpy 1.23.3 only build for CPython <=3.10
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    # --- upstream robocasa pins (verified working set) ---
+    "numpy==1.23.3",
+    "numba==0.56.4",
+    "scipy>=1.2.3",
+    "mujoco==3.2.6",
+    "pygame",
+    "Pillow",
+    "opencv-python",
+    "pyyaml",
+    "pynput",
+    "tqdm",
+    "termcolor",
+    "imageio",
+    "h5py",
+    "lxml",
+    "hidapi",
+    "tianshou==0.4.10",
+    # abs_robot fork bundles DemoTwoHand + GR1 models. PEP 508 git direct
+    # reference so a bare `uv pip install -e .` is self-contained (uv pip honors
+    # direct refs in [project.dependencies]; it does NOT read [tool.uv.sources]).
+    "robosuite @ git+https://github.com/ShahRutav/robosuite@abs_robot",
+    # mink 0.0.10 = last release with the `mink.tasks.exceptions` layout robosuite's
+    # mink_controller imports, AND requires mujoco>=3.1.6 (compatible with 3.2.6).
+    # 0.0.11+ moved the symbol; 1.x needs mujoco>=3.3 -> would break the GR1 path.
+    "mink==0.0.10",
+    "quadprog",           # default QP backend for mink.solve_ik
+    "huggingface_hub",    # used by scripts/download_mimicdroid_dataset.py
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["robocasa"]
