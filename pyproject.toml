@@ -27,16 +27,19 @@ dependencies = [
     "lxml",
     "hidapi",
     "tianshou==0.4.10",
-    # abs_robot fork bundles DemoTwoHand + GR1 models. PEP 508 git direct
-    # reference so a bare `uv pip install -e .` is self-contained (uv pip honors
-    # direct refs in [project.dependencies]; it does NOT read [tool.uv.sources]).
-    "robosuite @ git+https://github.com/ShahRutav/robosuite@abs_robot",
     # mink 0.0.10 = last release with the `mink.tasks.exceptions` layout robosuite's
     # mink_controller imports, AND requires mujoco>=3.1.6 (compatible with 3.2.6).
     # 0.0.11+ moved the symbol; 1.x needs mujoco>=3.3 -> would break the GR1 path.
     "mink==0.0.10",
     "quadprog",           # default QP backend for mink.solve_ik
     "huggingface_hub",    # used by scripts/download_mimicdroid_dataset.py
+    # NOTE: robosuite (abs_robot fork) is intentionally NOT listed here. GR1 needs
+    # robosuite's examples/ (WHOLE_BODY_MINK_IK), which is present only in an
+    # EDITABLE install, and uv/pip cannot editable-install from a Git URL. Install
+    # it editable from a local clone before this package:
+    #   git clone --branch abs_robot https://github.com/ShahRutav/robosuite
+    #   uv pip install -e robosuite
+    # (one-liner in a Dockerfile -- see the reflex eval-image sketch).
 ]
 
 [tool.hatch.build.targets.wheel]
