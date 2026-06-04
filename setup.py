@@ -39,7 +39,6 @@ setup(
         # with 3.2.6), so an unpinned mink breaks `--robots GR1TwoHand`.
         "mink==0.0.10",
         "quadprog",          # default QP backend for mink.solve_ik
-        "robosuite_models",  # GR1 (and other) robot models
         "huggingface_hub",   # used by scripts/download_mimicdroid_dataset.py
     ],
     eager_resources=["*"],
